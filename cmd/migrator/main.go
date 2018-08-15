@@ -33,7 +33,7 @@ func main() {
 func run() error {
 	flag.Parse()
 
-	if *user == "" || *password == "" || *address == "" {
+	if *user == "" || *address == "" {
 		return errors.NotValidf("database credentials required")
 	}
 	if *directory == "" {
@@ -79,8 +79,13 @@ func run() error {
 
 func openConnection(dbname string) (*sql.DB, error) {
 	if dbcache[dbname] == nil {
-		dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_bin", *user, *password, *address, dbname)
+		credentials := *user
+		if *password != "" {
+			credentials = fmt.Sprintf("%s:%s", *user, *password)
+		}
+		dsn := fmt.Sprintf("%s@tcp(%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_bin", credentials, *address, dbname)
 		log.WithField("dsn", dsn).Info("Connect to remote database")
+
 		db, err := sql.Open("mysql", dsn)
 		if err != nil {
 			return nil, errors.Trace(err)

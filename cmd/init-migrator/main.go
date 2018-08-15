@@ -41,7 +41,11 @@ func run() error {
 }
 
 func createSchema() error {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/information_schema?parseTime=true&charset=utf8mb4&collation=utf8mb4_bin", *user, *password, *address)
+	credentials := *user
+	if *password != "" {
+		credentials = fmt.Sprintf("%s:%s", *user, *password)
+	}
+	dsn := fmt.Sprintf("%s@tcp(%s)/information_schema?parseTime=true&charset=utf8mb4&collation=utf8mb4_bin", credentials, *address)
 	log.WithField("dsn", dsn).Info("Connect to remote database")
 
 	db, err := sql.Open("mysql", dsn)
@@ -65,7 +69,11 @@ func createSchema() error {
 }
 
 func createTable() error {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/migrator?parseTime=true&charset=utf8mb4&collation=utf8mb4_bin", *user, *password, *address)
+	credentials := *user
+	if *password != "" {
+		credentials = fmt.Sprintf("%s:%s", *user, *password)
+	}
+	dsn := fmt.Sprintf("%s@tcp(%s)/migrator?parseTime=true&charset=utf8mb4&collation=utf8mb4_bin", credentials, *address)
 	log.WithField("dsn", dsn).Info("Connect to remote database")
 
 	db, err := sql.Open("mysql", dsn)

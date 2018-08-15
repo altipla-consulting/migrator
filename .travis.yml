@@ -1,0 +1,14 @@
+
+language: go
+
+go:
+- 1.10.x
+
+services:
+- mysql
+
+before_install:
+- make deps
+
+script:
+- make test-travis
