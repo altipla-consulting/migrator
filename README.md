@@ -25,7 +25,6 @@ init-migrator -user foo -password bar -address mysql.example.com
 Then run the application as many times as yu want in your CI process or machine. Each time the app is called only the new migrations will be applied.
 
 ```shell
-migrator -user foo -password bar -address mysql.example.com -directory ./migrations
 ```
 
 The folder `./migrations` of the example commands should contain one file per migration. Each file can have multiple SQL statements and every one of them should finish with a `;` character.
@@ -51,6 +50,13 @@ CREATE TABLE images (
   
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+```
+
+If you want to track different migration directories (for different projects or clients) pass the `namespace` argument to all the commands:
+
+```shell
+init-migrator -namespace my_app -user foo -password bar -address mysql.example.com
+migrator -namespace my_app -user foo -password bar -address mysql.example.com -directory ./migrations
 ```
 
 

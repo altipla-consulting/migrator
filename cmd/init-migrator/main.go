@@ -12,9 +12,10 @@ import (
 )
 
 var (
-	user     = flag.String("user", "", "database username")
-	password = flag.String("password", "", "database password")
-	address  = flag.String("address", "", "database address")
+	user      = flag.String("user", "", "database username")
+	password  = flag.String("password", "", "database password")
+	address   = flag.String("address", "", "database address")
+	namespace = flag.String("namespace", "", "optional namespace to maintain different migrations sets")
 )
 
 func main() {
@@ -61,7 +62,11 @@ func createSchema() error {
 	}
 
 	log.Info("Create migrator database")
-	if _, err := db.Exec(`CREATE SCHEMA migrator`); err != nil {
+	sql := `CREATE SCHEMA migrator`
+	if *namespace != "" {
+		sql = fmt.Sprintf(`CREATE SCHEMA migrator_%s`, *namespace)
+	}
+	if _, err := db.Exec(sql); err != nil {
 		return errors.Trace(err)
 	}
 
@@ -73,7 +78,11 @@ func createTable() error {
 	if *password != "" {
 		credentials = fmt.Sprintf("%s:%s", *user, *password)
 	}
-	dsn := fmt.Sprintf("%s@tcp(%s)/migrator?parseTime=true&charset=utf8mb4&collation=utf8mb4_bin", credentials, *address)
+	migrator := "migrator"
+	if *namespace != "" {
+		migrator = fmt.Sprintf("migrator_%s", *namespace)
+	}
+	dsn := fmt.Sprintf("%s@tcp(%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_bin", credentials, *address, migrator)
 	log.WithField("dsn", dsn).Info("Connect to remote database")
 
 	db, err := sql.Open("mysql", dsn)

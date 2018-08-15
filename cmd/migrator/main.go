@@ -20,6 +20,7 @@ var (
 	password  = flag.String("password", "", "database password")
 	address   = flag.String("address", "", "database address")
 	directory = flag.String("directory", "", "directory with the migration files")
+	namespace = flag.String("namespace", "", "optional namespace to maintain different migrations sets")
 
 	dbcache = map[string]*sql.DB{}
 )
@@ -105,7 +106,7 @@ func openConnection(dbname string) (*sql.DB, error) {
 }
 
 func fetchAppliedMigrations() ([]string, error) {
-	db, err := openConnection("migrator")
+	db, err := openConnection(migratorName())
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -133,7 +134,7 @@ func fetchAppliedMigrations() ([]string, error) {
 }
 
 func flagAppliedMigration(name string) error {
-	db, err := openConnection("migrator")
+	db, err := openConnection(migratorName())
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -202,4 +203,12 @@ func applyMigration(name string) error {
 
 	log.Info("Migration applied successfully!")
 	return nil
+}
+
+func migratorName() string {
+	if *namespace == "" {
+		return "migrator"
+	}
+
+	return fmt.Sprintf("migrator_%s", *namespace)
 }
