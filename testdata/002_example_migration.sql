@@ -1,7 +1,6 @@
 
 USE foo;
 
-
 CREATE TABLE images (
   id INT(11) NOT NULL AUTO_INCREMENT,
   filename VARCHAR(255) NOT NULL,
