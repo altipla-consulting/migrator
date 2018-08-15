@@ -26,7 +26,7 @@ func main() {
 func run() error {
 	flag.Parse()
 
-	if *user == "" || *password == "" || *address == "" {
+	if *user == "" || *address == "" {
 		return errors.NotValidf("database credentials required")
 	}
 
