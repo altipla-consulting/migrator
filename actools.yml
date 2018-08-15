@@ -1,0 +1,8 @@
+
+project: github.com/altipla-consulting/migrator
+
+tools:
+  database:
+    container: mysql
+    ports:
+    - "3306:3306"
