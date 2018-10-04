@@ -148,23 +148,25 @@ func flagAppliedMigration(name string) error {
 }
 
 func applyMigration(name string) error {
-	content, err := ioutil.ReadFile(filepath.Join(*directory, name))
+	rawContent, err := ioutil.ReadFile(filepath.Join(*directory, name))
 	if err != nil {
 		return errors.Trace(err)
 	}
-	var lines []string
-	for _, line := range strings.Split(string(content), "\n") {
-		lines = append(lines, line)
+	var rawLines []string
+	for _, line := range strings.Split(string(rawContent), "\n") {
+		rawLines = append(rawLines, strings.TrimSpace(line))
 	}
+	content := strings.Join(rawLines, "\n")
+
+	lines = strings.Split(content, ";\n")
 
 	var dbname string
 	var logged bool
-	for _, line := range strings.Split(string(content), "\n") {
+	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
-		line = strings.TrimsSufix(line, ";")
 
 		matched, err := regexp.MatchString("^USE [a-z0-9_]+$", line)
 		if err != nil {
