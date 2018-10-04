@@ -158,7 +158,7 @@ func applyMigration(name string) error {
 	}
 	content := strings.Join(rawLines, "\n")
 
-	lines = strings.Split(content, ";\n")
+	lines := strings.Split(content, ";\n")
 
 	var dbname string
 	var logged bool
