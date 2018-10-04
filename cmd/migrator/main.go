@@ -152,6 +152,10 @@ func applyMigration(name string) error {
 	if err != nil {
 		return errors.Trace(err)
 	}
+	var lines []string
+	for _, line := range strings.Split(string(content), "\n") {
+		lines = append(lines, line)
+	}
 
 	var dbname string
 	var logged bool
@@ -160,6 +164,7 @@ func applyMigration(name string) error {
 		if line == "" {
 			continue
 		}
+		line = strings.TrimsSufix(line, ";")
 
 		matched, err := regexp.MatchString("^USE [a-z0-9_]+$", line)
 		if err != nil {
