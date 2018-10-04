@@ -152,11 +152,10 @@ func applyMigration(name string) error {
 	if err != nil {
 		return errors.Trace(err)
 	}
-	lines := strings.Split(string(content), ";\n")
 
 	var dbname string
 	var logged bool
-	for _, line := range lines {
+	for _, line := range strings.Split(string(content), "\n") {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
