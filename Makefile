@@ -18,8 +18,8 @@ test: gofmt
 	docker-compose up -d database
 	bash -c "until mysql -h 127.0.0.1 -P 3307 -u dev-user -pdev-password -e ';' 2> /dev/null ; do sleep 1; done"
 
-	init-migrator -user root -password dev-root -address localhost
-	migrator -user root -password dev-root -address localhost -directory testdata
+	init-migrator -user root -password dev-root -address localhost:3307
+	migrator -user root -password dev-root -address localhost:3307 -directory testdata
 
 update-deps:
 	go get -u
