@@ -20,7 +20,7 @@ var (
 
 func main() {
 	if err := run(); err != nil {
-		log.Fatal(errors.ErrorStack(err))
+		log.Fatal(errors.Details(err))
 	}
 }
 
