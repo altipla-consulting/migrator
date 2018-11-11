@@ -113,7 +113,7 @@ func fetchAppliedMigrations() ([]string, error) {
 
 	var names []string
 
-	rows, err := db.Query("SELECT name FROM migrations ORDER BY applied")
+	rows, err := db.Query("SELECT name FROM migrations ORDER BY name")
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
