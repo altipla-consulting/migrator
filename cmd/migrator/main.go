@@ -120,7 +120,7 @@ func fetchAppliedMigrations() ([]string, error) {
 			return nil, errors.Trace(err)
 		}
 	} else {
-		rows, err = db.Query(`SELECT name FROM migrations WHERE name > ? ORDER BY name`, *start)
+		rows, err = db.Query(`SELECT name FROM migrations WHERE applied > (SELECT applied FROM migrations WHERE name = ?) ORDER BY name`, *start)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
