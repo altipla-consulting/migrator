@@ -1,8 +1,6 @@
 
 # migrator
 
-[![Build Status](https://travis-ci.org/altipla-consulting/migrator.svg?branch=master)](https://travis-ci.org/altipla-consulting/migrator)
-
 Apply SQL migrations from a folder.
 
 
