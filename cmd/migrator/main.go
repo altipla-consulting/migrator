@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"libs.altipla.consulting/errors"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -21,13 +21,14 @@ var (
 	address   = flag.String("address", "", "database address")
 	directory = flag.String("directory", "", "directory with the migration files")
 	namespace = flag.String("namespace", "", "optional namespace to maintain different migrations sets")
+	start     = flag.String("start", "", "migration to consider as the start point, or empty if none should be used")
 
 	dbcache = map[string]*sql.DB{}
 )
 
 func main() {
 	if err := run(); err != nil {
-		log.Fatal(errors.Details(err))
+		log.Fatal(errors.Stack(err))
 	}
 }
 
@@ -35,10 +36,10 @@ func run() error {
 	flag.Parse()
 
 	if *user == "" || *address == "" {
-		return errors.NotValidf("database credentials required")
+		return errors.Errorf("database credentials required")
 	}
 	if *directory == "" {
-		return errors.NotValidf("migrations directory required")
+		return errors.Errorf("migrations directory required")
 	}
 
 	migrations, err := fetchAppliedMigrations()
@@ -57,7 +58,7 @@ func run() error {
 	for _, file := range files {
 		if filepath.Ext(file.Name()) != ".sql" {
 			fullname := filepath.Join(*directory, file.Name())
-			return errors.NotValidf("all migration files should have SQL extension: %s", fullname)
+			return errors.Errorf("all migration files should have SQL extension: %s", fullname)
 		}
 
 		migrationFiles = append(migrationFiles, file.Name())
@@ -66,7 +67,7 @@ func run() error {
 	for i, name := range migrationFiles {
 		if len(migrations) > i {
 			if migrations[i] != name {
-				return errors.NotValidf("inconsistent applied state found: %s != %s", migrations[i], name)
+				return errors.Errorf("inconsistent applied state found: %s != %s", migrations[i], name)
 			}
 		} else {
 			if err := applyMigration(name); err != nil {
@@ -112,10 +113,17 @@ func fetchAppliedMigrations() ([]string, error) {
 	}
 
 	var names []string
-
-	rows, err := db.Query("SELECT name FROM migrations ORDER BY name")
-	if err != nil {
-		return nil, errors.Trace(err)
+	var rows *sql.Rows
+	if *start == "" {
+		rows, err = db.Query(`SELECT name FROM migrations ORDER BY name`)
+		if err != nil {
+			return nil, errors.Trace(err)
+		}
+	} else {
+		rows, err = db.Query(`SELECT name FROM migrations WHERE name >= ? ORDER BY name`, *start)
+		if err != nil {
+			return nil, errors.Trace(err)
+		}
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -176,12 +184,12 @@ func applyMigration(name string) error {
 				dbname = line[len("USE "):]
 				continue
 			} else {
-				return errors.NotValidf("only one database per migration file allowed: %s", name)
+				return errors.Errorf("only one database per migration file allowed: %s", name)
 			}
 		}
 
 		if dbname == "" {
-			return errors.NotValidf("database not selected before running statement: %s: %s", name, line)
+			return errors.Errorf("database not selected before running statement: %s: %s", name, line)
 		}
 
 		if !logged {

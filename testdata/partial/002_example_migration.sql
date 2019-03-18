@@ -1,0 +1,11 @@
+
+USE foo;
+
+CREATE TABLE images (
+  id INT(11) NOT NULL AUTO_INCREMENT,
+  filename VARCHAR(255) NOT NULL,
+
+  revision INT(11) NOT NULL,
+  
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

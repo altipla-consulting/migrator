@@ -5,8 +5,8 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"libs.altipla.consulting/errors"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -20,7 +20,7 @@ var (
 
 func main() {
 	if err := run(); err != nil {
-		log.Fatal(errors.Details(err))
+		log.Fatal(errors.Stack(err))
 	}
 }
 
@@ -28,7 +28,7 @@ func run() error {
 	flag.Parse()
 
 	if *user == "" || *address == "" {
-		return errors.NotValidf("database credentials required")
+		return errors.Errorf("database credentials required")
 	}
 
 	if err := createSchema(); err != nil {
@@ -101,7 +101,7 @@ func createTable() error {
 	sql := `
 		CREATE TABLE migrations (
 		  name VARCHAR(191) NOT NULL,
-		  applied DATETIME NOt NULL DEFAULT CURRENT_TIMESTAMP,
+		  applied DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		  
 		  PRIMARY KEY (name)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
